@@ -3,6 +3,8 @@
 [![Python Version](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
+**Live website:** [fjc-civil-case-intelligence.streamlit.app](https://fjc-civil-case-intelligence.streamlit.app/)
+
 An end-to-end Machine Learning research pipeline analyzing the **Federal Judicial Center (FJC) Integrated Database (IDB)** civil court litigation records. This project performs data extraction, encoding, litigation duration regression, and disposition classification.
 
 ---
