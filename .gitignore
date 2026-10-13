@@ -11,3 +11,17 @@ node_modules/
 dist/
 .pytest_cache/
 *.log
+
+# Backup files
+*.bak
+*.bak2
+
+# Temp/scratch scripts (not needed by collaborators)
+check_*.py
+inject_*.py
+inspect_notebooks.py
+run_clf_tuning.py
+run_clustering_final.py
+show_tuning_cells.py
+verify_*.py
+test_api.py

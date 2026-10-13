@@ -50,7 +50,7 @@ def load_all() -> None:
         _load_json(ARTIFACT_DIR / "dataset.json", default=_mock_dataset())
     )
 
-    # ── Metrics ─────────────────────────────────────────────────────────────
+    # ── Classification Metrics ──────────────────────────────────────────────
     registry.METRICS.update(
         _load_json(ARTIFACT_DIR / "metrics.json", default=_mock_metrics())
     )
@@ -73,11 +73,22 @@ def load_all() -> None:
             clusters_dir / f"{cid}.json", default={}
         )
 
+    # ── Regression metrics ──────────────────────────────────────────────────
+    registry.REGRESSION.update(
+        _load_json(ARTIFACT_DIR / "regression_metrics.json", default=_mock_regression_metrics())
+    )
+
+    # ── Best regression model ───────────────────────────────────────────────
+    best_reg = _load_joblib(models_dir / "regression_best.joblib")
+    if best_reg is not None:
+        registry.REGRESSION_MODEL["best"] = best_reg
+
     log.info(
-        "Registry loaded — models: %d, metrics: %d, clusters: %d",
+        "Registry loaded — clf models: %d, metrics: %d, clusters: %d, reg models: %d",
         len(registry.MODELS),
         len(registry.METRICS),
         len(registry.CLUSTERS),
+        len(registry.REGRESSION),
     )
 
 
@@ -148,3 +159,20 @@ def _mock_metrics() -> dict:
         m["confusion_matrix"] = cm
         m["roc_points"] = roc
     return base
+
+
+def _mock_regression_metrics() -> dict:
+    """Fallback mock regression metrics used before real artifacts are generated."""
+    return {
+        "linear_regression":    {"r2": 0.191, "rmse": 428.0,  "mae": 261.0, "fit_time_s": 1.2,  "display_name": "Linear Regression"},
+        "ridge":                {"r2": 0.191, "rmse": 428.0,  "mae": 261.0, "fit_time_s": 1.5,  "display_name": "Ridge Regression"},
+        "lasso":                {"r2": 0.190, "rmse": 429.0,  "mae": 261.0, "fit_time_s": 1.6,  "display_name": "Lasso Regression"},
+        "polynomial":           {"r2": 0.365, "rmse": 339.8,  "mae": 234.2, "fit_time_s": 15.7, "display_name": "Polynomial Regression"},
+        "decision_tree":        {"r2": 0.354, "rmse": 342.7,  "mae": 228.6, "fit_time_s": 15.8, "display_name": "Decision Tree Regressor"},
+        "random_forest":        {"r2": 0.439, "rmse": 319.2,  "mae": 212.4, "fit_time_s": 218.8,"display_name": "Random Forest Regressor"},
+        "random_forest_tuned":  {"r2": 0.453, "rmse": 315.0,  "mae": 210.0, "fit_time_s": 40.9, "display_name": "Random Forest Regressor (Tuned)", "is_best": True},
+        "gradient_boosting":    {"r2": 0.339, "rmse": 346.5,  "mae": 238.9, "fit_time_s": 587.4,"display_name": "Gradient Boosting Regressor"},
+        "svr":                  {"r2": 0.002, "rmse": 425.8,  "mae": 261.4, "fit_time_s": 63.9, "display_name": "SVR"},
+        "knn":                  {"r2": 0.273, "rmse": 363.5,  "mae": 244.4, "fit_time_s": 2.1,  "display_name": "KNN Regressor"},
+    }
+

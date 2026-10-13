@@ -115,3 +115,42 @@ class ClusterResponse(BaseModel):
     points: list[ClusterPoint]
     metrics: dict[str, float]   # silhouette, davies_bouldin, calinski_harabasz
     extra: dict[str, Any]       # elbow data, centroid trajectory, linkage matrix…
+
+
+# ── /api/regression ───────────────────────────────────────────────────────────
+
+class RegressionModelDetail(BaseModel):
+    id: str
+    display_name: str
+    r2: float
+    rmse: float
+    mae: float
+    fit_time_s: float
+    is_best: bool = False
+    feature_importances: list[dict[str, Any]] | None = None
+
+
+class RegressionListResponse(BaseModel):
+    models: list[RegressionModelDetail]
+
+
+# ── /api/regression/predict ───────────────────────────────────────────────────
+
+class RegressionPredictRequest(BaseModel):
+    features: dict[str, float | int | str] = Field(
+        ..., description="Feature name → value mapping (same features as classification)"
+    )
+
+
+class RegressionPredictResponse(BaseModel):
+    predicted_days: float
+    predicted_years: float
+    model_used: str
+    is_mock: bool = False
+
+
+# ── /api/plots ────────────────────────────────────────────────────────────────
+
+class PlotListResponse(BaseModel):
+    plots: list[str]   # list of available plot filenames
+

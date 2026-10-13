@@ -19,7 +19,7 @@ from fastapi.staticfiles import StaticFiles
 
 from backend.config import CORS_ORIGINS, DEBUG
 from backend.core.loader import load_all
-from backend.routers import meta, models, predict, compare, cluster
+from backend.routers import meta, models, predict, compare, cluster, regression, plots, preprocessing
 
 logging.basicConfig(level=logging.DEBUG if DEBUG else logging.INFO)
 log = logging.getLogger(__name__)
@@ -57,6 +57,9 @@ app.include_router(models.router)
 app.include_router(predict.router)
 app.include_router(compare.router)
 app.include_router(cluster.router)
+app.include_router(regression.router)
+app.include_router(plots.router)
+app.include_router(preprocessing.router)
 
 # ── Static frontend (only when the build exists) ─────────────────────────────
 if STATIC_DIR.exists():
