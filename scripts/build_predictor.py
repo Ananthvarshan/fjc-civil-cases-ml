@@ -1,0 +1,99 @@
+"""Export the fitted scaler, encoder and PCA so the website can score new cases.
+
+Reads data/processed/model_ready_data.pkl (from notebooks/preprocessing.ipynb) and writes a
+small website/backend/artifacts/predictor/preprocess.joblib. No model is trained here.
+Run with --verify to check that raw cases from data/cv23.sas7bdat reproduce X_test_final.
+"""
+from pathlib import Path
+import argparse
+import sys
+import warnings
+
+import joblib
+import numpy as np
+
+ROOT = Path(__file__).resolve().parents[1]
+SOURCE = ROOT/'data/processed/model_ready_data.pkl'
+TARGET = ROOT/'website/backend/artifacts/predictor/preprocess.joblib'
+
+
+def export():
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore')
+        data = joblib.load(SOURCE)
+    keep = {k: data[k] for k in ['scaler', 'encoder', 'pca', 'numeric_cols', 'categorical_cols', 'pc_columns']}
+    TARGET.parent.mkdir(parents=True, exist_ok=True)
+    joblib.dump(keep, TARGET)
+    print(f'Wrote {TARGET.relative_to(ROOT)}')
+    export_notebook_classifier(data)
+    return data
+
+
+def export_notebook_classifier(data):
+    """Score the notebook's tuned classifier (models/best_classifier.pkl) on the full test set."""
+    import json
+    from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, roc_auc_score
+    path = ROOT/'models/best_classifier.pkl'
+    out = TARGET.parent/'notebook_models.json'
+    with path.open('rb') as stream:
+        if stream.read(80).startswith(b'version https://git-lfs'):
+            out.write_text('[]'); return
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore')
+        model = joblib.load(path)
+        X = np.asarray(data['X_test_final'], dtype=float); y = np.asarray(data['y_clf_test'])
+        pred = model.predict(X); proba = model.predict_proba(X)
+    test = dict(accuracy=accuracy_score(y, pred), precision=precision_score(y, pred, average='weighted', zero_division=0),
+                recall=recall_score(y, pred, average='weighted'), f1=f1_score(y, pred, average='weighted'),
+                roc_auc=roc_auc_score(y, proba, multi_class='ovr', average='weighted'))
+    name = type(model).__name__.replace('Classifier', ' Classifier').replace('MLP ', 'MLP ')
+    entry = dict(id='classification_notebook', name=f'{name} (tuned, notebook)', path='models/best_classifier.pkl',
+                 test=test, test_rows=len(y))
+    out.write_text(json.dumps([entry], indent=1))
+    print(f'Scored {entry["name"]} on {len(y)} test rows: accuracy {test["accuracy"]:.4f}, F1 {test["f1"]:.4f}')
+
+
+def verify(data, rows=2000):
+    """Rebuild features from raw SAS rows exactly as the preprocessing notebook does."""
+    import pandas as pd
+    sys.path.insert(0, str(ROOT))
+    from website.backend import predictor
+    raw = pd.read_sas(ROOT/'data/cv23.sas7bdat', encoding='latin-1')
+    expected = data['X_test_final'].iloc[:rows]
+    df = raw.loc[expected.index]
+    worst = 0.0
+    for (_, r), (_, want) in zip(df.iterrows(), expected.iterrows()):
+        case = dict(
+            district=r['DISTRICT'], origin=int(r['ORIGIN']), juris=int(r['JURIS']),
+            nos_group=_nos_group(r['NOS']), jury=r['JURY'], demanded=float(r['DEMANDED']),
+            residenc=0 if r['RESIDENC'] == -8 else int(r['RESIDENC']),
+            classact=int(r['CLASSACT'] == 1), prose=int(r['PROSE']),
+            ifp=int(str(r['IFP']) == 'FP'), procprog=int(r['PROCPROG']),
+            filing_month=int(pd.to_datetime(r['FILEDATE']).month))
+        got = predictor.features(predictor.normalise(case))[0]
+        worst = max(worst, float(np.abs(got - want.to_numpy()).max()))
+    print(f'Verified {len(df)} test rows; largest feature difference {worst:.2e}')
+    if worst > 1e-6:
+        raise SystemExit('Website preprocessing does not reproduce the notebook features.')
+
+
+def _nos_group(code):
+    c = int(code)
+    if 110 <= c <= 196: return 'Contract'
+    if 310 <= c <= 368: return 'Torts - Personal Injury'
+    if 440 <= c <= 448: return 'Civil Rights'
+    if c in (450, 460, 462, 463, 465): return 'Immigration'
+    if c in (510, 530, 535, 540, 550, 555, 560): return 'Prisoner Petitions'
+    if c in (710, 720, 740, 751, 790, 791): return 'Labor'
+    if c in (820, 830, 835, 840): return 'Intellectual Property'
+    if 861 <= c <= 865: return 'Social Security'
+    return 'Other'
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--verify', action='store_true', help='compare against X_test_final using the raw SAS file')
+    args = parser.parse_args()
+    data = export()
+    if args.verify:
+        verify(data)
