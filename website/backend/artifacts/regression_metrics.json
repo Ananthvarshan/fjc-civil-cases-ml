@@ -1,0 +1,328 @@
+{
+  "linear_regression": {
+    "r2": 0.1913,
+    "rmse": 383.33,
+    "mae": 267.38,
+    "fit_time_s": 0.2,
+    "display_name": "Linear Regression"
+  },
+  "ridge": {
+    "r2": 0.1913,
+    "rmse": 383.32,
+    "mae": 267.38,
+    "fit_time_s": 0.1,
+    "display_name": "Ridge Regression"
+  },
+  "ridge_tuned": {
+    "r2": 0.1913,
+    "rmse": 383.32,
+    "mae": 267.38,
+    "fit_time_s": 0.0,
+    "display_name": "Ridge Regression (Tuned)"
+  },
+  "lasso": {
+    "r2": 0.19,
+    "rmse": 383.63,
+    "mae": 267.93,
+    "fit_time_s": 0.1,
+    "display_name": "Lasso Regression"
+  },
+  "lasso_tuned": {
+    "r2": 0.1913,
+    "rmse": 383.32,
+    "mae": 267.38,
+    "fit_time_s": 0.0,
+    "display_name": "Lasso Regression (Tuned)"
+  },
+  "decision_tree": {
+    "r2": 0.3537,
+    "rmse": 342.69,
+    "mae": 228.59,
+    "fit_time_s": 4.1,
+    "display_name": "Decision Tree Regressor",
+    "feature_importances": [
+      {
+        "feature": "PC1",
+        "importance": 0.154817
+      },
+      {
+        "feature": "PC19",
+        "importance": 0.123779
+      },
+      {
+        "feature": "PC5",
+        "importance": 0.109895
+      },
+      {
+        "feature": "PC7",
+        "importance": 0.068555
+      },
+      {
+        "feature": "PC15",
+        "importance": 0.063262
+      },
+      {
+        "feature": "PC18",
+        "importance": 0.056159
+      },
+      {
+        "feature": "PC6",
+        "importance": 0.052795
+      },
+      {
+        "feature": "PC36",
+        "importance": 0.051445
+      },
+      {
+        "feature": "PC26",
+        "importance": 0.033765
+      },
+      {
+        "feature": "PC24",
+        "importance": 0.032595
+      },
+      {
+        "feature": "PC4",
+        "importance": 0.025032
+      },
+      {
+        "feature": "PC14",
+        "importance": 0.020811
+      },
+      {
+        "feature": "PC16",
+        "importance": 0.01887
+      },
+      {
+        "feature": "PC17",
+        "importance": 0.017263
+      },
+      {
+        "feature": "PC11",
+        "importance": 0.016746
+      }
+    ]
+  },
+  "random_forest": {
+    "r2": 0.4392,
+    "rmse": 319.22,
+    "mae": 212.44,
+    "fit_time_s": 43.9,
+    "display_name": "Random Forest Regressor",
+    "feature_importances": [
+      {
+        "feature": "PC1",
+        "importance": 0.116911
+      },
+      {
+        "feature": "PC5",
+        "importance": 0.091748
+      },
+      {
+        "feature": "PC19",
+        "importance": 0.087624
+      },
+      {
+        "feature": "PC15",
+        "importance": 0.053971
+      },
+      {
+        "feature": "PC7",
+        "importance": 0.049699
+      },
+      {
+        "feature": "PC6",
+        "importance": 0.047975
+      },
+      {
+        "feature": "PC36",
+        "importance": 0.0432
+      },
+      {
+        "feature": "PC18",
+        "importance": 0.035578
+      },
+      {
+        "feature": "PC24",
+        "importance": 0.02864
+      },
+      {
+        "feature": "PC4",
+        "importance": 0.028502
+      },
+      {
+        "feature": "PC14",
+        "importance": 0.026334
+      },
+      {
+        "feature": "PC11",
+        "importance": 0.024999
+      },
+      {
+        "feature": "PC16",
+        "importance": 0.023962
+      },
+      {
+        "feature": "PC26",
+        "importance": 0.01874
+      },
+      {
+        "feature": "PC3",
+        "importance": 0.018049
+      }
+    ]
+  },
+  "random_forest_tuned": {
+    "r2": 0.4529,
+    "rmse": 315.29,
+    "mae": 208.25,
+    "fit_time_s": 0.0,
+    "display_name": "Random Forest Regressor (Tuned)",
+    "is_best": true,
+    "feature_importances": [
+      {
+        "feature": "PC5",
+        "importance": 0.06587
+      },
+      {
+        "feature": "PC1",
+        "importance": 0.064544
+      },
+      {
+        "feature": "PC15",
+        "importance": 0.051641
+      },
+      {
+        "feature": "PC9",
+        "importance": 0.0432
+      },
+      {
+        "feature": "PC6",
+        "importance": 0.042729
+      },
+      {
+        "feature": "PC19",
+        "importance": 0.039916
+      },
+      {
+        "feature": "PC7",
+        "importance": 0.037832
+      },
+      {
+        "feature": "PC20",
+        "importance": 0.037701
+      },
+      {
+        "feature": "PC3",
+        "importance": 0.03534
+      },
+      {
+        "feature": "PC18",
+        "importance": 0.034396
+      },
+      {
+        "feature": "PC4",
+        "importance": 0.033362
+      },
+      {
+        "feature": "PC27",
+        "importance": 0.027573
+      },
+      {
+        "feature": "PC11",
+        "importance": 0.0274
+      },
+      {
+        "feature": "PC14",
+        "importance": 0.026625
+      },
+      {
+        "feature": "PC16",
+        "importance": 0.025265
+      }
+    ]
+  },
+  "gradient_boosting": {
+    "r2": 0.3391,
+    "rmse": 346.53,
+    "mae": 238.93,
+    "fit_time_s": 150.7,
+    "display_name": "Gradient Boosting Regressor",
+    "feature_importances": [
+      {
+        "feature": "PC5",
+        "importance": 0.169537
+      },
+      {
+        "feature": "PC1",
+        "importance": 0.151309
+      },
+      {
+        "feature": "PC19",
+        "importance": 0.125067
+      },
+      {
+        "feature": "PC15",
+        "importance": 0.08157
+      },
+      {
+        "feature": "PC20",
+        "importance": 0.053931
+      },
+      {
+        "feature": "PC18",
+        "importance": 0.045433
+      },
+      {
+        "feature": "PC7",
+        "importance": 0.041915
+      },
+      {
+        "feature": "PC27",
+        "importance": 0.033601
+      },
+      {
+        "feature": "PC16",
+        "importance": 0.031141
+      },
+      {
+        "feature": "PC9",
+        "importance": 0.025068
+      },
+      {
+        "feature": "PC14",
+        "importance": 0.023617
+      },
+      {
+        "feature": "PC36",
+        "importance": 0.021912
+      },
+      {
+        "feature": "PC6",
+        "importance": 0.021863
+      },
+      {
+        "feature": "PC4",
+        "importance": 0.021309
+      },
+      {
+        "feature": "PC8",
+        "importance": 0.020591
+      }
+    ]
+  },
+  "svr": {
+    "r2": 0.0022,
+    "rmse": 425.79,
+    "mae": 261.43,
+    "fit_time_s": 39.9,
+    "display_name": "SVR"
+  },
+  "knn": {
+    "r2": 0.2728,
+    "rmse": 363.49,
+    "mae": 244.36,
+    "fit_time_s": 2.6,
+    "display_name": "KNN Regressor"
+  }
+}

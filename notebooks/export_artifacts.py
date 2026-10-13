@@ -24,7 +24,7 @@ from pathlib import Path
 
 import joblib
 import matplotlib
-matplotlib.use("Agg")          # headless — no GUI window
+matplotlib.use("Agg")          # headless -- no GUI window
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import numpy as np
@@ -81,7 +81,7 @@ section("A. Preprocessing")
 
 prep_path = DATA_DIR / "model_ready_data.pkl"
 if not prep_path.exists():
-    print(f"  [!] {prep_path} not found — skipping preprocessing artifacts.")
+    print(f"  [!] {prep_path} not found -- skipping preprocessing artifacts.")
 else:
     prep = joblib.load(prep_path)
     X_train_final  = prep["X_train_final"]
@@ -159,7 +159,7 @@ else:
     vals = [class_dist_dict.get(l, 0) * 100 for l in labels_sorted]
     colors = ["#4C72B0", "#55A868", "#C44E52", "#8172B2", "#CCB974"]
     ax.bar(labels_sorted, vals, color=colors)
-    ax.set_title("Class Distribution — Case Outcome (Train Set)")
+    ax.set_title("Class Distribution -- Case Outcome (Train Set)")
     ax.set_ylabel("Percentage (%)")
     ax.set_xlabel("Outcome")
     for i, v in enumerate(vals):
@@ -176,7 +176,7 @@ else:
         mask = np.array([label_to_int.get(y, y) for y in y_sample]) == idx
         ax.scatter(X_pca2[mask, 0], X_pca2[mask, 1],
                    label=label, alpha=0.5, s=10, color=cmap(idx))
-    ax.set_title("PCA 2D — Training Data by Class")
+    ax.set_title("PCA 2D -- Training Data by Class")
     ax.set_xlabel("PC1"); ax.set_ylabel("PC2")
     ax.legend(markerscale=2, fontsize=8)
     plt.tight_layout()
@@ -189,13 +189,13 @@ else:
     fig, ax = plt.subplots(figsize=(8, 5))
     ax.plot(range(1, len(cum_var) + 1), cum_var, color="#4C72B0")
     ax.axhline(95, color="red", linestyle="--", label="95% threshold")
-    ax.set_title("PCA — Cumulative Explained Variance")
+    ax.set_title("PCA -- Cumulative Explained Variance")
     ax.set_xlabel("Number of Components"); ax.set_ylabel("Cumulative Variance (%)")
     ax.legend()
     plt.tight_layout()
     save_fig(fig, "preprocessing_pca_scree.png")
 
-    print("  [✓] Preprocessing artifacts done.")
+    print("  [OK] Preprocessing artifacts done.")
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  B.  CLASSIFICATION ARTIFACTS
@@ -204,7 +204,7 @@ section("B. Classification")
 
 clf_path = DATA_DIR / "classification_final_results.pkl"
 if not clf_path.exists():
-    print(f"  [!] {clf_path} not found — skipping classification artifacts.")
+    print(f"  [!] {clf_path} not found -- skipping classification artifacts.")
 else:
     from sklearn.model_selection import RandomizedSearchCV
     from sklearn.neural_network import MLPClassifier
@@ -220,7 +220,7 @@ else:
     comparison_df      = clf_data.get("comparison_clf_df_full", pd.DataFrame())
     best_model_name    = clf_data.get("best_model_name", "MLP Classifier")
 
-    # Map display names → artifact IDs
+    # Map display names -> artifact IDs
     MODEL_ID_MAP = {
         "Random Forest Classifier":    "random_forest",
         "AdaBoost Classifier":         "adaboost",
@@ -260,7 +260,7 @@ else:
     for display_name, mid in MODEL_ID_MAP.items():
         model = fitted_models_clf.get(display_name)
         if model is None:
-            print(f"  [!] Model '{display_name}' not found in pkl — skipping.")
+            print(f"  [!] Model '{display_name}' not found in pkl -- skipping.")
             continue
 
         print(f"  Processing {display_name} ...")
@@ -286,7 +286,7 @@ else:
         # Confusion matrix
         cm_arr = confusion_matrix(y_clf_test, y_pred, labels=CLASS_LABELS_clf).tolist()
 
-        # ROC curve (macro OvR — one curve per class, then average)
+        # ROC curve (macro OvR -- one curve per class, then average)
         roc_pts = []
         for cls_idx in range(n_cls):
             y_bin = (np.array(y_clf_test) == CLASS_LABELS_clf[cls_idx]).astype(int)
@@ -334,7 +334,7 @@ else:
                 ax.text(j, i, str(cm_arr[i][j]), ha="center", va="center",
                         color="white" if cm_arr[i][j] > max(max(r) for r in cm_arr) / 2 else "black",
                         fontsize=7)
-        ax.set_title(f"{display_name} — Confusion Matrix")
+        ax.set_title(f"{display_name} -- Confusion Matrix")
         ax.set_ylabel("True"); ax.set_xlabel("Predicted")
         plt.tight_layout()
         save_fig(fig, f"clf_{mid}_confusion.png")
@@ -344,7 +344,7 @@ else:
         ax.plot([r["fpr"] for r in avg_roc], [r["tpr"] for r in avg_roc],
                 color="#4C72B0", lw=2, label=f"Avg ROC (AUC={roc_auc:.3f})")
         ax.plot([0, 1], [0, 1], "k--", lw=1)
-        ax.set_title(f"{display_name} — ROC Curve (OvR Weighted)")
+        ax.set_title(f"{display_name} -- ROC Curve (OvR Weighted)")
         ax.set_xlabel("False Positive Rate"); ax.set_ylabel("True Positive Rate")
         ax.legend()
         plt.tight_layout()
@@ -435,7 +435,7 @@ else:
         roc_tuned = [{"fpr": round(float(f), 4), "tpr": round(float(t), 4)}
                      for f, t in zip(fpr_grid, tpr_sum / n_cls)]
 
-        print(f"    F1 before tuning: {f1_before:.4f}  →  after tuning: {f1_after:.4f}")
+        print(f"    F1 before tuning: {f1_before:.4f}  ->  after tuning: {f1_after:.4f}")
 
         # Store tuned model under {mid}_tuned key in metrics
         tuned_mid = f"{best_mid}_tuned"
@@ -487,7 +487,7 @@ else:
         ax.bar(x + 0.2, after_vals,  0.35, label=f"{best_model_name} (Tuned)",  color="#55A868")
         ax.set_xticks(x); ax.set_xticklabels(metrics_compare)
         ax.set_ylim(0, 1); ax.set_ylabel("Score")
-        ax.set_title(f"Hyperparameter Tuning — {best_model_name}\nBefore vs After")
+        ax.set_title(f"Hyperparameter Tuning -- {best_model_name}\nBefore vs After")
         ax.legend()
         for i, (b, a) in enumerate(zip(before_vals, after_vals)):
             ax.text(i - 0.2, b + 0.01, f"{b:.4f}", ha="center", fontsize=8)
@@ -495,7 +495,7 @@ else:
         plt.tight_layout()
         save_fig(fig, "clf_tuning_before_after.png")
 
-        # ── Plot: Confusion matrix — Tuned model ─────────────────────────────
+        # ── Plot: Confusion matrix -- Tuned model ─────────────────────────────
         fig, ax = plt.subplots(figsize=(7, 6))
         im = ax.imshow(cm_tuned, interpolation="nearest", cmap="Greens")
         plt.colorbar(im, ax=ax)
@@ -507,13 +507,13 @@ else:
                 ax.text(jj, ii, str(cm_tuned[ii][jj]), ha="center", va="center",
                         color="white" if cm_tuned[ii][jj] > max(max(r) for r in cm_tuned) / 2 else "black",
                         fontsize=7)
-        ax.set_title(f"{best_model_name} (Tuned) — Confusion Matrix")
+        ax.set_title(f"{best_model_name} (Tuned) -- Confusion Matrix")
         ax.set_ylabel("True"); ax.set_xlabel("Predicted")
         plt.tight_layout()
         save_fig(fig, f"clf_{tuned_mid}_confusion.png")
 
     else:
-        print(f"  [!] Tuning skipped — '{best_model_name}' not in tuning grids or model missing.")
+        print(f"  [!] Tuning skipped -- '{best_model_name}' not in tuning grids or model missing.")
 
     save_json(metrics_json, ARTIFACTS / "metrics.json")
 
@@ -536,12 +536,12 @@ else:
         ax.bar(x + w, aucs, w, label="ROC-AUC",   color="#C44E52")
         ax.set_xticks(x); ax.set_xticklabels(names, rotation=15)
         ax.set_ylim(0, 1); ax.set_ylabel("Score")
-        ax.set_title("Classification Models — Performance Comparison")
+        ax.set_title("Classification Models -- Performance Comparison")
         ax.legend()
         plt.tight_layout()
         save_fig(fig, "clf_comparison_bar.png")
 
-    print("  [✓] Classification artifacts done.")
+    print("  [OK] Classification artifacts done.")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -551,7 +551,7 @@ section("C. Regression")
 
 reg_path = DATA_DIR / "regression_final_results.pkl"
 if not reg_path.exists():
-    print(f"  [!] {reg_path} not found — skipping regression artifacts.")
+    print(f"  [!] {reg_path} not found -- skipping regression artifacts.")
 else:
     reg_data = joblib.load(reg_path)
     fitted_models_reg = reg_data["fitted_models"]        # dict: name -> model/dict
@@ -668,14 +668,14 @@ else:
         colors = ["#55A868" if i == "random_forest" else "#4C72B0" for i in plot_ids]
         ax.barh(plot_names, r2s, color=colors)
         ax.set_xlabel("R² Score (Test)")
-        ax.set_title("Regression Models — R² Comparison")
+        ax.set_title("Regression Models -- R² Comparison")
         ax.axvline(0, color="black", lw=0.5)
         for i, v in enumerate(r2s):
             ax.text(max(v, 0) + 0.005, i, f"{v:.3f}", va="center", fontsize=8)
         plt.tight_layout()
         save_fig(fig, "reg_comparison_bar.png")
 
-    print("  [✓] Regression artifacts done.")
+    print("  [OK] Regression artifacts done.")
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  D.  CLUSTERING ARTIFACTS
@@ -684,7 +684,7 @@ section("D. Clustering")
 
 clus_path = DATA_DIR / "clustering_results.pkl"
 if not clus_path.exists():
-    print(f"  [!] {clus_path} not found — skipping clustering artifacts.")
+    print(f"  [!] {clus_path} not found -- skipping clustering artifacts.")
 else:
     from sklearn.cluster import KMeans, AgglomerativeClustering
     from scipy.cluster.hierarchy import dendrogram, linkage as scipy_linkage
@@ -791,7 +791,7 @@ else:
     # ── Plot: Elbow curve ────────────────────────────────────────────────────
     fig, ax = plt.subplots(figsize=(8, 5))
     ax.plot(list(k_range), inertias, marker="o", color="#4C72B0")
-    ax.set_title("K-Means — Elbow Curve")
+    ax.set_title("K-Means -- Elbow Curve")
     ax.set_xlabel("k (number of clusters)"); ax.set_ylabel("Inertia")
     plt.tight_layout()
     save_fig(fig, "cluster_elbow.png")
@@ -804,7 +804,7 @@ else:
     for ax, method in zip(axes, ["ward", "complete", "average"]):
         Z = scipy_linkage(X_dendro, method=method)
         dendrogram(Z, ax=ax, no_labels=True, color_threshold=0)
-        ax.set_title(f"Dendrogram — {method.capitalize()} linkage")
+        ax.set_title(f"Dendrogram -- {method.capitalize()} linkage")
     plt.tight_layout()
     save_fig(fig, "cluster_dendrogram.png")
 
@@ -839,7 +839,7 @@ else:
     plt.tight_layout()
     save_fig(fig, "cluster_silhouette.png")
 
-    print("  [✓] Clustering artifacts done.")
+    print("  [OK] Clustering artifacts done.")
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  DONE

@@ -1,0 +1,71 @@
+{
+  "feature_importances": [
+    {
+      "feature": "PC5",
+      "importance": 0.074579
+    },
+    {
+      "feature": "PC7",
+      "importance": 0.060691
+    },
+    {
+      "feature": "PC1",
+      "importance": 0.056329
+    },
+    {
+      "feature": "PC6",
+      "importance": 0.051517
+    },
+    {
+      "feature": "PC11",
+      "importance": 0.039697
+    },
+    {
+      "feature": "PC4",
+      "importance": 0.038976
+    },
+    {
+      "feature": "PC30",
+      "importance": 0.038615
+    },
+    {
+      "feature": "PC10",
+      "importance": 0.034029
+    },
+    {
+      "feature": "PC8",
+      "importance": 0.031293
+    },
+    {
+      "feature": "PC28",
+      "importance": 0.030734
+    },
+    {
+      "feature": "PC9",
+      "importance": 0.030306
+    },
+    {
+      "feature": "PC18",
+      "importance": 0.029213
+    },
+    {
+      "feature": "PC27",
+      "importance": 0.026257
+    },
+    {
+      "feature": "PC3",
+      "importance": 0.025997
+    },
+    {
+      "feature": "PC36",
+      "importance": 0.024839
+    }
+  ],
+  "class_names": [
+    "Dismissed",
+    "Judgment",
+    "Settled",
+    "Statistical",
+    "Transferred"
+  ]
+}

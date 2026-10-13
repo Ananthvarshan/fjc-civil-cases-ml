@@ -5,3 +5,5 @@
 *.pt filter=lfs diff=lfs merge=lfs -text
 *.pth filter=lfs diff=lfs merge=lfs -text
 *.joblib filter=lfs diff=lfs merge=lfs -text
+website/backend/artifacts/clusters/*.json filter=lfs diff=lfs merge=lfs -text
+website/backend/artifacts/models/*.joblib filter=lfs diff=lfs merge=lfs -text
