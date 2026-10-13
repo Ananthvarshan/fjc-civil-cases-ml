@@ -80,3 +80,19 @@ python data/download_data.py
 
 ## 👤 Author & Maintainer
 - **GitHub Username**: [Ananthvarshan](https://github.com/Ananthvarshan)
+
+## 🖥️ FastAPI Dashboard
+
+After restoring the Git LFS artifacts and installing the dependencies, generate the
+dashboard data and launch the FastAPI web UI:
+
+```bash
+python notebooks/export_artifacts.py
+python -m uvicorn website.backend.main:app --reload
+```
+
+Open `http://127.0.0.1:8000` in a browser. The dashboard provides separate Overview,
+Classification, Regression, and Clustering pages. It displays model metrics,
+comparison tables, diagnostic graphs, and the best model/configuration for each task.
+Classification is ranked by weighted F1, regression by test R², and clustering by
+silhouette score.

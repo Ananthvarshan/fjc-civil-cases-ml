@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FJC Civil Cases ML Dashboard</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div><span class="eyebrow">FJC INTEGRATED DATABASE</span><h1> Civil Cases ML Dashboard</h1></div>
+    <span id="health" class="status">Connecting…</span>
+  </header>
+  <main class="shell">
+    <nav class="tabs" aria-label="Dashboard sections">
+      <button class="tab active" data-page="overview">Overview</button>
+      <button class="tab" data-page="classification">Classification</button>
+      <button class="tab" data-page="regression">Regression</button>
+      <button class="tab" data-page="clustering">Clustering</button>
+    </nav>
+    <section id="content" class="content"></section>
+  </main>
+  <script>
+    const content = document.getElementById('content');
+    const esc = value => String(value ?? '—').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+    const num = value => typeof value === 'number' ? value.toFixed(4) : esc(value);
+    const image = (url, caption) => url ? `<figure><img src="${url}" alt="${esc(caption)}"><figcaption>${esc(caption)}</figcaption></figure>` : '<div class="empty">Graph unavailable</div>';
+    const table = (headers, rows) => `<div class="table-wrap"><table><thead><tr>${headers.map(h => `<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows.map(row => `<tr>${row.map(cell => `<td>${esc(cell)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+    const unavailable = name => `<div class="notice"><strong>${name} artifacts are unavailable.</strong><br>Restore the Git LFS files, then run <code>python notebooks/export_artifacts.py</code>.</div>`;
+    function renderOverview(data) {
+      const c = data.counts || {};
+      content.innerHTML = `<div class="hero"><p class="eyebrow">MODEL EXPLORATION</p><h2>Performance at a glance</h2><p>Compare every trained model and see the strongest configuration for each machine-learning task.</p></div><div class="cards"><div class="card"><span>Classifiers</span><strong>${c.classifiers || 0}</strong></div><div class="card"><span>Regressors</span><strong>${c.regressors || 0}</strong></div><div class="card"><span>Clustering configurations</span><strong>${c.kmeans_configurations || 0}</strong></div></div><div class="grid two">${image(data.plots?.class_distribution,'Training-set class distribution')}${image(data.plots?.pca,'PCA view of training data')}</div>`;
+    }
+    function renderClassification(data) {
+      if (!data.available) { content.innerHTML = unavailable('Classification'); return; }
+      const b=data.best; const rows=data.models.map(m=>[m.id,num(m.accuracy),num(m.f1),num(m.precision),num(m.recall),num(m.roc_auc),m.is_tuned?'Yes':'No']);
+      content.innerHTML = `<h2>Classification</h2><p class="subtitle">Best model is selected by weighted F1, then accuracy and ROC-AUC.</p><div class="winner"><span>Best classifier</span><strong>${esc(b.id)}</strong><em>Weighted F1 ${num(b.f1)}</em></div>${table(['Model','Accuracy','F1','Precision','Recall','ROC-AUC','Tuned'],rows)}<div class="grid two">${image(data.plots.comparison,'Model comparison')}${image(data.plots.confusion,'Best-model confusion matrix')}${image(data.plots.roc,'Best-model ROC curve')}${image(data.plots.tuning,'Tuning comparison')}</div>`;
+    }
+    function renderRegression(data) {
+      if (!data.available) { content.innerHTML = unavailable('Regression'); return; }
+      const b=data.best; const rows=data.models.map(m=>[m.display_name || m.id,num(m.r2),num(m.rmse),num(m.mae),num(m.fit_time_s)]);
+      content.innerHTML = `<h2>Regression</h2><p class="subtitle">Best model is selected by highest test R², then lowest RMSE.</p><div class="winner"><span>Best regressor</span><strong>${esc(b.display_name || b.id)}</strong><em>Test R² ${num(b.r2)}</em></div>${table(['Model','R²','RMSE','MAE','Fit time (s)'],rows)}<div class="grid two">${image(data.plots.comparison,'Model comparison')}${image(data.plots.diagnostics,'Predicted vs actual and residual diagnostics')}</div>`;
+    }
+    function renderClustering(data) {
+      if (!data.available) { content.innerHTML = unavailable('Clustering'); return; }
+      const b=data.best; const rows=data.models.map(m=>[m.algorithm, m.k, num(m.silhouette), num(m.davies_bouldin), num(m.calinski_harabasz)]);
+      content.innerHTML = `<h2>Clustering</h2><p class="subtitle">Best configuration is selected by highest silhouette, then lowest Davies–Bouldin score.</p><div class="winner"><span>Best configuration</span><strong>${esc(b.algorithm)} (k=${esc(b.k)})</strong><em>Silhouette ${num(b.silhouette)}</em></div>${table(['Algorithm','k','Silhouette','Davies-Bouldin','Calinski-Harabasz'],rows)}<div class="grid two">${image(data.plots.elbow,'K-Means elbow curve')}${image(data.plots.silhouette,'Silhouette score across k')}${image(data.plots.pca,'PCA cluster visualization')}${image(data.plots.dendrogram,'Agglomerative dendrogram')}</div>`;
+    }
+    async function load(page) {
+      content.innerHTML = '<div class="loading">Loading model artifacts…</div>';
+      try { const response=await fetch(`/api/${page}`); const data=await response.json(); ({overview:renderOverview,classification:renderClassification,regression:renderRegression,clustering:renderClustering}[page])(data); }
+      catch (error) { content.innerHTML=`<div class="notice">Could not load the API: ${esc(error.message)}</div>`; }
+    }
+    document.querySelectorAll('.tab').forEach(button => button.addEventListener('click', () => { document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active')); button.classList.add('active'); load(button.dataset.page); }));
+    fetch('/api/health').then(r=>r.json()).then(()=>document.getElementById('health').textContent='API online').catch(()=>document.getElementById('health').textContent='API unavailable');
+    load('overview');
+  </script>
+</body>
+</html>

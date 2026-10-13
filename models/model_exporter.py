@@ -33,7 +33,8 @@ def train_and_export():
         clf = RandomForestClassifier(n_estimators=100, max_depth=10, random_state=42)
         clf.fit(X_train, y_train)
         
-        clf_path = os.path.join(MODEL_DIR, "classification_model.pkl")
+        # Keep the filename consistent with the repository's documented artifact.
+        clf_path = os.path.join(MODEL_DIR, "best_classifier.pkl")
         joblib.dump(clf, clf_path)
         print(f"[+] Saved Classification Model to: {clf_path}")
 

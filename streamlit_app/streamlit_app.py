@@ -31,7 +31,7 @@ def report():
 
 
 def predict(body):
-    """Same contract as POST /api/predict in website/backend/dashboard_app.py."""
+    """Same contract as POST /api/predict in website/backend/main.py."""
     task, model_id = body.get('task'), body.get('model_id')
     if task not in ('classification', 'regression'):
         return 404, {'detail': 'Unknown task'}

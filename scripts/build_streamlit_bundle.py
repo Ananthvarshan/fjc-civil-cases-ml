@@ -61,7 +61,7 @@ def dashboard(report):
     """
     import sys
     sys.path.insert(0, str(ROOT))
-    from website.backend import dashboard_app as api
+    from website.backend import main as api
     out = APP/'dashboard'
     if out.exists():
         shutil.rmtree(out)

@@ -4,10 +4,10 @@ This directory contains model serialization scripts (`model_exporter.py`) and sa
 
 ## Directory Structure
 - `model_exporter.py`: Python script to train and save baseline ML models.
-- `classification_model.pkl`: Serialized Random Forest Classifier for case outcome disposition.
+- `best_classifier.pkl`: Serialized Random Forest Classifier for case outcome disposition.
 
 ## Loading Models
 ```python
 import joblib
-model = joblib.load("models/classification_model.pkl")
+model = joblib.load("models/best_classifier.pkl")
 ```

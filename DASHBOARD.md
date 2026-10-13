@@ -1,6 +1,6 @@
 # Run the dashboard
 
-From this project folder, run `python -m uvicorn website.backend.dashboard_app:app --host 127.0.0.1 --port 8000`, then open http://127.0.0.1:8000.
+From this project folder, run `python -m uvicorn website.backend.main:app --host 127.0.0.1 --port 8000`, then open http://127.0.0.1:8000.
 Alternatively double-click `start_dashboard.cmd`. Stop an existing server before starting another on the same port.
 
 The web server needs only `python -m pip install -r requirements-web.txt`. The result pages read the saved JSON report and PNG graphs; only the Predict page loads saved models, and nothing is trained by the server.
