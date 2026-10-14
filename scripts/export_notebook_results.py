@@ -34,6 +34,11 @@ def main(source):
 
     classifiers = rows(clf['comparison_clf_df_full'], dict(name='Model', accuracy='Accuracy', precision='Precision',
                        recall='Recall', f1='F1', roc_auc='ROC_AUC_OvR', fit_seconds='Fit_Seconds'))
+    extra = ROOT/'website/backend/artifacts/perceptron_results.json'  # scripts/train_perceptron.py
+    if extra.is_file() and not any(r['name'] == 'Single-Layer Perceptron' for r in classifiers):
+        p = json.loads(extra.read_text(encoding='utf-8'))
+        classifiers.append({k: p[k] for k in ['name', 'accuracy', 'precision', 'recall', 'f1', 'roc_auc', 'fit_seconds']})
+        classifiers.sort(key=lambda r: -r['f1'])
     tuning = clf['tuning_result']
     out['classification'] = dict(models=classifiers, best=clf['best_model_name'], selection='Highest test weighted F1',
                                  tuning=dict(model=tuning['model_name'], params=tuning['best_params'],

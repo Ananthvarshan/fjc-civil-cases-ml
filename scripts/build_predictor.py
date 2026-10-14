@@ -30,27 +30,45 @@ def export():
 
 
 def export_notebook_classifier(data):
-    """Score the notebook's tuned classifier (models/best_classifier.pkl) on the full test set."""
+    """Score the full-data classifiers saved from the notebook on the full test set.
+
+    models/best_classifier.pkl (the notebook's winner) and models/single_layer_perceptron.pkl
+    (scripts/train_perceptron.py). Each entry also records the network's layer sizes for the diagram.
+    """
     import json
     from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, roc_auc_score
-    path = ROOT/'models/best_classifier.pkl'
     out = TARGET.parent/'notebook_models.json'
-    with path.open('rb') as stream:
-        if stream.read(80).startswith(b'version https://git-lfs'):
-            out.write_text('[]'); return
-    with warnings.catch_warnings():
-        warnings.simplefilter('ignore')
-        model = joblib.load(path)
-        X = np.asarray(data['X_test_final'], dtype=float); y = np.asarray(data['y_clf_test'])
-        pred = model.predict(X); proba = model.predict_proba(X)
-    test = dict(accuracy=accuracy_score(y, pred), precision=precision_score(y, pred, average='weighted', zero_division=0),
-                recall=recall_score(y, pred, average='weighted'), f1=f1_score(y, pred, average='weighted'),
-                roc_auc=roc_auc_score(y, proba, multi_class='ovr', average='weighted'))
-    name = type(model).__name__.replace('Classifier', ' Classifier').replace('MLP ', 'MLP ')
-    entry = dict(id='classification_notebook', name=f'{name} (tuned, notebook)', path='models/best_classifier.pkl',
-                 test=test, test_rows=len(y))
-    out.write_text(json.dumps([entry], indent=1))
-    print(f'Scored {entry["name"]} on {len(y)} test rows: accuracy {test["accuracy"]:.4f}, F1 {test["f1"]:.4f}')
+    X = np.asarray(data['X_test_final'], dtype=float); y = np.asarray(data['y_clf_test'])
+    entries = []
+    for model_id, rel, label in [('classification_notebook', 'models/best_classifier.pkl', '(notebook, full data)'),
+                                 ('classification_perceptron', 'models/single_layer_perceptron.pkl', '')]:
+        path = ROOT/rel
+        if not path.is_file():
+            continue
+        with path.open('rb') as stream:
+            if stream.read(80).startswith(b'version https://git-lfs'):
+                continue
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore')
+            model = joblib.load(path)
+            pred = model.predict(X)
+            proba = model.predict_proba(X) if hasattr(model, 'predict_proba') else softmax(model.decision_function(X))
+        test = dict(accuracy=accuracy_score(y, pred), precision=precision_score(y, pred, average='weighted', zero_division=0),
+                    recall=recall_score(y, pred, average='weighted', zero_division=0),
+                    f1=f1_score(y, pred, average='weighted', zero_division=0),
+                    roc_auc=roc_auc_score(y, proba, multi_class='ovr', average='weighted', labels=model.classes_))
+        hidden = list(getattr(model, 'hidden_layer_sizes', ())) if hasattr(model, 'coefs_') else []
+        name = 'Single-Layer Perceptron' if not hasattr(model, 'coefs_') else \
+            type(model).__name__.replace('Classifier', ' Classifier') + ' ' + label
+        entries.append(dict(id=model_id, name=name.strip(), path=rel, test=test, test_rows=len(y),
+                            layers=[X.shape[1], *hidden, len(model.classes_)]))
+        print(f'Scored {name.strip()} on {len(y)} test rows: accuracy {test["accuracy"]:.4f}, F1 {test["f1"]:.4f}')
+    out.write_text(json.dumps(entries, indent=1))
+
+
+def softmax(scores):
+    z = np.exp(scores - scores.max(axis=1, keepdims=True))
+    return z/z.sum(axis=1, keepdims=True)
 
 
 def verify(data, rows=2000):
