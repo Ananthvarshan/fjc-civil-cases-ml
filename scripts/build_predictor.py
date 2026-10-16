@@ -59,11 +59,21 @@ def export_notebook_classifier(data):
                     roc_auc=roc_auc_score(y, proba, multi_class='ovr', average='weighted', labels=model.classes_))
         hidden = list(getattr(model, 'hidden_layer_sizes', ())) if hasattr(model, 'coefs_') else []
         name = 'Single-Layer Perceptron' if not hasattr(model, 'coefs_') else \
-            type(model).__name__.replace('Classifier', ' Classifier') + ' ' + label
+            type(model).__name__.replace('Classifier', ' Classifier') + ' ' + saved_label(label)
         entries.append(dict(id=model_id, name=name.strip(), path=rel, test=test, test_rows=len(y),
                             layers=[X.shape[1], *hidden, len(model.classes_)]))
         print(f'Scored {name.strip()} on {len(y)} test rows: accuracy {test["accuracy"]:.4f}, F1 {test["f1"]:.4f}')
     out.write_text(json.dumps(entries, indent=1))
+
+
+def saved_label(default):
+    """'(tuned, full data)' when the notebook's final pick (notebook_results.json) is a tuned model."""
+    import json
+    try:
+        best = json.loads((TARGET.parent.parent/'notebook_results.json').read_text(encoding='utf-8'))['classification']['best']
+    except (OSError, ValueError, KeyError):
+        return default
+    return '(tuned, full data)' if best.endswith('(Tuned)') else default
 
 
 def softmax(scores):

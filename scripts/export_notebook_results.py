@@ -40,7 +40,33 @@ def main(source):
         classifiers.append({k: p[k] for k in ['name', 'accuracy', 'precision', 'recall', 'f1', 'roc_auc', 'fit_seconds']})
         classifiers.sort(key=lambda r: -r['f1'])
     tuning = clf['tuning_result']
-    out['classification'] = dict(models=classifiers, best=clf['best_model_name'], selection='Highest test weighted F1',
+    # Tuned variants (the notebook tunes Bagging and MLP): score each on the full test set.
+    from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, roc_auc_score
+    X_test, y_test = np.asarray(data['X_test_final'], dtype=float), np.asarray(data['y_clf_test'])
+    tuned_rows = []
+    for item in tuning.get('all_models') or [dict(Model=tuning['model_name'])]:
+        key = f"{item['Model']} (Tuned)"
+        model = clf['fitted_models_clf'].get(key)
+        if model is None:
+            continue
+        pred, proba = model.predict(X_test), model.predict_proba(X_test)
+        tuned_rows.append(dict(name=key, accuracy=float(accuracy_score(y_test, pred)),
+                               precision=float(precision_score(y_test, pred, average='weighted', zero_division=0)),
+                               recall=float(recall_score(y_test, pred, average='weighted', zero_division=0)),
+                               f1=float(f1_score(y_test, pred, average='weighted', zero_division=0)),
+                               roc_auc=float(roc_auc_score(y_test, proba, multi_class='ovr', average='weighted')),
+                               params={k: str(v) for k, v in (item.get('Best Parameters') or tuning['best_params']).items()}))
+    tuned_rows.sort(key=lambda r: -r['f1'])
+    best_clf = clf['best_model_name']
+    if tuned_rows and tuned_rows[0]['f1'] > max(r['f1'] for r in classifiers):
+        best_clf = tuned_rows[0]['name']
+    final = clf['fitted_models_clf'].get(best_clf)
+    network = None
+    if final is not None and hasattr(final, 'coefs_'):
+        network = dict(model=best_clf, layers=[int(final.coefs_[0].shape[0]), *[int(w.shape[1]) for w in final.coefs_]],
+                       activation=final.activation, solver=final.solver, epochs=int(final.n_iter_))
+    out['classification'] = dict(models=classifiers, tuned=tuned_rows, best=best_clf, network=network,
+                                 selection='Highest test weighted F1, then tuning',
                                  tuning=dict(model=tuning['model_name'], params=tuning['best_params'],
                                              before=tuning['before'], after=tuning['after']))
 
